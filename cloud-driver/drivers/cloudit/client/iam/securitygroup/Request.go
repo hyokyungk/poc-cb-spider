@@ -71,6 +71,7 @@ func Get(restClient *client.RestClient, securitygroupId string, requestOpts *cli
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
 		return nil, result.Err
 	}
+	
 
 	var securityGroup SecurityGroupInfo
 	if err := result.ExtractInto(&securityGroup); err != nil {

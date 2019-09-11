@@ -68,27 +68,27 @@ azure:
     id: {id}
 
   # Azure Test VM Info
-  group_name: {group_name}
+  group_name: inno-platform1-rsrc-grup
   vm_name: {vm_name}
 
   image_info:
-    group_name: {group_name}
+    group_name: inno-platform1-rsrc-grup
     name: {name}
 
   public_ip:
-    group_name: {group_name}
-    name: {name}
+    group_name: inno-platform1-rsrc-grup
+    name: mcb-test-publicip
 
   security_group:
-    group_name: {group_name}
+    group_name: inno-platform1-rsrc-grup
     name: {name}
 
   virtual_network:
-    group_name: {group_name}
+    group_name: inno-platform1-rsrc-grup
     name: {name}
 
   network_interface:
-    group_name: {group_name}
+    group_name: inno-platform1-rsrc-grup
     name: {name}
 
 
@@ -96,20 +96,23 @@ azure:
 cloudit:
 
   # Cloudit Credential Info
-  identity_endpoint: {identity_endpoint}
-  auth_token: {token}
-  tenant_id: tnt0009
+  user_id: cloudit
+  password: cloudit
+  identity_endpoint: http://stg.cloudit.co.kr:9090
+  #  identity_endpoint: http://192.168.130.5:9090
   #  auth_token: ddd8e54a5bac82eea3de7c347ff8a253d0dc563d
+  auth_token: 05ae4abeebf06cc29a1d5c96c5fc4459abf7ee1d
   #  tenant_id: tnt0008
+  tenant_id: tnt0009
   server_id: 7b35148e-b033-4749-a29e-12beddaebbfa
-  
+
   # Cloudit VM Create Info
   vm_info:
     template_id: 2813a6ed-66f8-4041-9cfa-2cb5cb416520
     spec_id: 1c38e438-ede9-4df5-8775-2ce791698924
-    name: mcb-vm
+    name: mcb-test-vm-dy
     root_password: 1qa2ws3ed!A
-    subnet_addr: 10.0.8.0
+    subnet_addr: 10.0.12.0
     sec_groups: b2be62e7-fd29-43ff-b008-08ae736e092a
     description: mcb-test-vm
     protection: 0
@@ -122,10 +125,27 @@ cloudit:
       name: mcb-test-pubip
     security_group:
       name: mcb-test-sg
-    vnet_info:
-      name: mcb-test-vnet
-    vnic_info:
-      vm_id: 025e5edc-54ad-4b98-9292-6eeca4c36a6d
-      mac: AC:DE:48:00:08:05
-    vm_info:
-      name: mcb-test-vm
+
+  # Cloudit VNet(Subnet) Info
+  virtual_network:
+    name:
+    id:
+
+  # Cloudit AdativeIP Info
+  public_ip:
+    name:
+    id:
+
+  # Security
+  security_info:
+    name:
+    id:
+
+  # Image
+  image_info:
+    name:
+    id:
+
+  # Cloudit template Id (ubuntu 18.04)
+  template:
+    id: 914007c0-02ea-4794-9250-02b08d6e2db7
