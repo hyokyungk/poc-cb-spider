@@ -21,11 +21,9 @@ func createVM(config Config, vmHandler irs.VMHandler) (irs.VMInfo, error) {
 		SpecID: config.Cloudit.VMInfo.SpecId,
 		VNetworkInfo: irs.VNetworkInfo{
 			Id: config.Cloudit.VMInfo.SubnetAddr,
-			// TODO: 생성된 Subnet Id 가져오가
 		},
 		SecurityInfo: irs.SecurityInfo{
 			Id: config.Cloudit.VMInfo.SecGroups,
-			// TODO: 생성된 SG Id 가져오가
 		},
 		LoginInfo: irs.LoginInfo{
 			AdminPassword: config.Cloudit.VMInfo.RootPassword,
@@ -77,7 +75,7 @@ func testVMHandler() {
 				fmt.Println("Finish List VM")
 			case 2:
 				fmt.Println("Start Get VM ...")
-				vmInfo := vmHandler.GetVM(config.Cloudit.ServerId)
+				vmInfo := vmHandler.GetVM(serverId)
 				spew.Dump(vmInfo)
 				fmt.Println("Finish Get VM")
 			case 3:
@@ -89,7 +87,7 @@ func testVMHandler() {
 				fmt.Println("Finish List VMStatus")
 			case 4:
 				fmt.Println("Start Get VMStatus ...")
-				vmStatus := vmHandler.GetVMStatus(config.Cloudit.ServerId)
+				vmStatus := vmHandler.GetVMStatus(serverId)
 				fmt.Println(vmStatus)
 				fmt.Println("Finish Get VMStatus")
 			case 5:

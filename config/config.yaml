@@ -47,49 +47,76 @@ openstack:
 azure:
 
   # Azure Credential Info
-  client_id: {client_id}
-  client_secret: {client_secret}
-  tenant_id: {tenant_id}
-  subscription_id: {subscription_id}
+  client_id: xxx
+  client_secret: xxx
+  tenant_id: xxx
+  subscription_id: xxx
 
   # Azure VM Deployment Info
-  location: {location}
-  vm_size: {vm_size}
+  location: koreacentral
+  vm_size: Standard_B1ls
   image:
-    publisher: {publisher}
-    offer: {offer}
-    sku: {sku}
-    version: {version}
+    publisher: Canonical
+    offer: UbuntuServer
+    sku: 16.04.0-LTS
+    version: latest
+
   os:
-    compute_name: {compute_name}
-    admin_username: {admin_username}
-    admin_password: {admin_password}
+    compute_name: mcb-test-vm
+    admin_username: cbarista
+    admin_password: xxx
+
   nic:
-    id: {id}
+    id: /subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/networkInterfaces/cb-nic
 
   # Azure Test VM Info
-  group_name: inno-platform1-rsrc-grup
-  vm_name: {vm_name}
+  group_name: cb-resource-group
+  vm_name: vm-name
 
   image_info:
-    group_name: inno-platform1-rsrc-grup
-    name: {name}
+    group_name: cb-resource-group
+    name: image-name
 
   public_ip:
-    group_name: inno-platform1-rsrc-grup
-    name: mcb-test-publicip
+    group_name: cb-resource-group
+    name: ip_name
 
   security_group:
-    group_name: inno-platform1-rsrc-grup
-    name: {name}
+    group_name: cb-resource-group
+    name: sec_name
 
   virtual_network:
-    group_name: inno-platform1-rsrc-grup
-    name: {name}
+    group_name: cb-resource-group
+    name: vnet_name
 
   network_interface:
-    group_name: inno-platform1-rsrc-grup
-    name: {name}
+    group_name: cb-resource-group
+    name: nic_name
+
+
+
+aws:
+
+  # AWS Credential Info
+  aws_access_key_id: None
+  aws_secret_access_key: None
+  region: ap-northeast-2
+
+  # AMI
+  image_id: ami-047f7b46bd6dd5d84
+
+  # EC2
+  ec2_instance_id: i-04f1693f5e94c1c79
+  base_name: mcloud-barista
+  instance_type: t2.micro
+  #  key_name: mcloud-barista-keypair
+  key_name: powerkimkeypair
+  min_count: 1
+  max_count: 1
+
+  # Network
+  subnet_id: subnet-c3b446ab
+  security_group_id: sg-07ec42983dbc5e36e
 
 
 ## Config for Cloudit ##
@@ -110,9 +137,9 @@ cloudit:
   vm_info:
     template_id: 2813a6ed-66f8-4041-9cfa-2cb5cb416520
     spec_id: 1c38e438-ede9-4df5-8775-2ce791698924
-    name: mcb-test-vm-dy
-    root_password: 1qa2ws3ed!A
-    subnet_addr: 10.0.12.0
+    name: mcb-vm
+    root_password: xxx
+    subnet_addr: 10.0.8.0
     sec_groups: b2be62e7-fd29-43ff-b008-08ae736e092a
     description: mcb-test-vm
     protection: 0
@@ -125,27 +152,10 @@ cloudit:
       name: mcb-test-pubip
     security_group:
       name: mcb-test-sg
-
-  # Cloudit VNet(Subnet) Info
-  virtual_network:
-    name:
-    id:
-
-  # Cloudit AdativeIP Info
-  public_ip:
-    name:
-    id:
-
-  # Security
-  security_info:
-    name:
-    id:
-
-  # Image
-  image_info:
-    name:
-    id:
-
-  # Cloudit template Id (ubuntu 18.04)
-  template:
-    id: 914007c0-02ea-4794-9250-02b08d6e2db7
+    vnet_info:
+      name: mcb-test-vnet
+    vnic_info:
+      vm_id: 025e5edc-54ad-4b98-9292-6eeca4c36a6d
+      mac: AC:DE:48:00:08:05
+    vm_info:
+      name: mcb-test-vm
