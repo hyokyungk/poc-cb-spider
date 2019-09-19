@@ -43,7 +43,7 @@ azure:
   os:
     compute_name: mcb-test-vm
     admin_username: cbarista
-    admin_password: cbaristaA!@#$
+    admin_password: xxxx
 
   network:
     id: /subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/networkInterfaces/cb-nic
@@ -72,3 +72,26 @@ azure:
   network_interface:
     group_name: cb-resource-group
     name: nic_name
+
+aws:
+
+  # AWS Credential Info
+  aws_access_key_id: None
+  aws_secret_access_key: None
+  region: ap-northeast-2
+
+  # AMI
+  image_id: ami-047f7b46bd6dd5d84
+
+  # EC2
+  ec2_instance_id: i-0cdf0af13f19c9448
+  base_name: mcloud-barista
+  instance_type: t2.micro
+#  key_name: mcloud-barista-keypair
+  key_name: powerkimkeypair
+  min_count: 1
+  max_count: 1
+
+  # Network
+  subnet_id: subnet-c3b446ab
+  security_group_id: sg-07ec42983dbc5e36e

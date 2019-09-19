@@ -33,6 +33,25 @@ func init() {
 	cblog.SetLevel("debug")
 }
 
+// Test PublicIp
+func handlePublicIP() {
+	cblogger.Debug("Start Publicip Resource Test")
+
+	ResourceHandler, err := getResourceHandler("Publicip")
+	if err != nil {
+		panic(err)
+	}
+
+	handler := ResourceHandler.(irs.PublicIPHandler)
+
+	config := readConfigFile()
+	publicIPReqInfo := irs.PublicIPReqInfo{
+		Id: config.Aws.VmID,
+	}
+	handler.CreatePublicIP(publicIPReqInfo)
+
+}
+
 // Test KeyPair
 func handleKeyPair() {
 	cblogger.Debug("Start KeyPair Resource Test")
@@ -181,6 +200,7 @@ func handleVNetwork() {
 func main() {
 	cblogger.Info("AWS Resource Test")
 	handleKeyPair()
+	//handlePublicIP() // PublicIP 생성 후 conf
 	//handleVNetwork()	//VPC
 	/*
 		KeyPairHandler, err := setKeyPairHandler()
@@ -198,6 +218,50 @@ func main() {
 			spew.Dump(result)
 		}
 	*/
+}
+
+//handlerType : resources폴더의 xxxHandler.go에서 Handler이전까지의 문자열
+//(예) ImageHandler.go -> "Image"
+func getResourceHandler(handlerType string) (interface{}, error) {
+	var cloudDriver idrv.CloudDriver
+	cloudDriver = new(awsdrv.AwsDriver)
+
+	config := readConfigFile()
+	connectionInfo := idrv.ConnectionInfo{
+		CredentialInfo: idrv.CredentialInfo{
+			ClientId:     config.Aws.AawsAccessKeyID,
+			ClientSecret: config.Aws.AwsSecretAccessKey,
+		},
+		RegionInfo: idrv.RegionInfo{
+			Region: config.Aws.Region,
+		},
+	}
+
+	cloudConnection, errCon := cloudDriver.ConnectCloud(connectionInfo)
+	if errCon != nil {
+		return nil, errCon
+	}
+
+	var resourceHandler interface{}
+	var err error
+
+	switch handlerType {
+	case "Image":
+		resourceHandler, err = cloudConnection.CreateImageHandler()
+	case "Publicip":
+		resourceHandler, err = cloudConnection.CreatePublicIPHandler()
+	case "Security":
+		resourceHandler, err = cloudConnection.CreateSecurityHandler()
+	case "VNetwork":
+		resourceHandler, err = cloudConnection.CreateVNetworkHandler()
+	case "VNic":
+		resourceHandler, err = cloudConnection.CreateVNicHandler()
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return resourceHandler, nil
 }
 
 func setKeyPairHandler() (irs.KeyPairHandler, error) {

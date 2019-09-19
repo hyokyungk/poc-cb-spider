@@ -93,12 +93,16 @@ func (vNicHandler *AzureVNicHandler) CreateVNic(vNicReqInfo irs.VNicReqInfo) (ir
 			{
 				Name:                      "ipConfig1",
 				PrivateIPAllocationMethod: "Dynamic",
-				PublicIPId:                "/subscriptions/cb592624-b77b-4a8f-bb13-0e5a48cae40f/resourceGroups/inno-platform1-rsrc-grup/providers/Microsoft.Network/publicIPAddresses/mcb-test-publicip",
+				//PublicIPId:                "/subscriptions/cb592624-b77b-4a8f-bb13-0e5a48cae40f/resourceGroups/inno-platform1-rsrc-grup/providers/Microsoft.Network/publicIPAddresses/mcb-test-publicip", // @todo
+				//changed by powerkim for test, 2019.09.02
+				PublicIPId:                "/subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/publicIPAddresses/powerkim-test1-ip",
 			},
 		},
-		//SecurityGroupId: "/subscriptions/cb592624-b77b-4a8f-bb13-0e5a48cae40f/resourceGroups/inno-platform1-rsrc-grup/providers/Microsoft.Network/networkSecurityGroups/mcb-test-sg",
+		//SecurityGroupId: "/subscriptions/cb592624-b77b-4a8f-bb13-0e5a48cae40f/resourceGroups/inno-platform1-rsrc-grup/providers/Microsoft.Network/networkSecurityGroups/mcb-test-sg", // @todo
 		//edited by powerkim for test, 2019.08.13
-		SecurityGroupId: "cb-security-group",
+		//SecurityGroupId: "cb-security-group", // changed by powerkim, 2019.09.02
+		SecurityGroupId: "/subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/networkSecurityGroups/cb-security-group",
+
 	}
 
 	vNicIdArr := strings.Split(vNicReqInfo.Id, ":")

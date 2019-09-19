@@ -65,8 +65,8 @@ func (vmHandler *AwsVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, err
 	minCount := aws.Int64(1)
 	maxCount := aws.Int64(1)
 	keyName := vmReqInfo.KeyPairInfo.Name
-	securityGroupID := vmReqInfo.SecurityInfo.Id // "sg-0df1c209ea1915e4b"
-	subnetID := vmReqInfo.VNetworkInfo.Id        // "subnet-cf9ccf83"
+	securityGroupID := vmReqInfo.SecurityInfo.Id // "sg-0df1c209ea1915e4b" - 미지정시 보안 그룹명이 "default"인 보안 그룹이 사용 됨.
+	subnetID := vmReqInfo.VNetworkInfo.Id        // "subnet-cf9ccf83" - 미지정시 기본 VPC의 기본 서브넷이 임의로 이용되며 PublicIP가 할당 됨.
 	baseName := vmReqInfo.Name                   //"mcloud-barista-VMHandlerTest"
 
 	cblogger.Info("Create EC2 Instance")
@@ -78,9 +78,11 @@ func (vmHandler *AwsVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, err
 		MinCount:     minCount,
 		MaxCount:     maxCount,
 		KeyName:      aws.String(keyName),
+
 		SecurityGroupIds: []*string{
 			aws.String(securityGroupID), // set a security group.
 		},
+
 		SubnetId: aws.String(subnetID), // set a subnet.
 	})
 	if err != nil {
