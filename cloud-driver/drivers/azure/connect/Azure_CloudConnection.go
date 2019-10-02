@@ -12,13 +12,21 @@ package connect
 
 import (
 	"context"
-	"fmt"
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2018-06-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-04-01/network"
+	cblog "github.com/cloud-barista/cb-log"
 	azrs "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/azure/resources"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type AzureCloudConnection struct {
 	Region              idrv.RegionInfo
@@ -33,19 +41,19 @@ type AzureCloudConnection struct {
 }
 
 func (cloudConn *AzureCloudConnection) CreateVNetworkHandler() (irs.VNetworkHandler, error) {
-	fmt.Println("Azure Cloud Driver: called CreateVNetworkHandler()!")
+	cblogger.Info("Azure Cloud Driver: called CreateVNetworkHandler()!")
 	vNetHandler := azrs.AzureVNetworkHandler{cloudConn.Region, cloudConn.Ctx, cloudConn.VNetClient}
 	return &vNetHandler, nil
 }
 
 func (cloudConn *AzureCloudConnection) CreateImageHandler() (irs.ImageHandler, error) {
-	fmt.Println("Azure Cloud Driver: called CreateImageHandler()!")
+	cblogger.Info("Azure Cloud Driver: called CreateImageHandler()!")
 	imageHandler := azrs.AzureImageHandler{cloudConn.Region, cloudConn.Ctx, cloudConn.ImageClient}
 	return &imageHandler, nil
 }
 
 func (cloudConn *AzureCloudConnection) CreateSecurityHandler() (irs.SecurityHandler, error) {
-	fmt.Println("Azure Cloud Driver: called CreateSecurityHandler()!")
+	cblogger.Info("Azure Cloud Driver: called CreateSecurityHandler()!")
 	sgHandler := azrs.AzureSecurityHandler{cloudConn.Region, cloudConn.Ctx, cloudConn.SecurityGroupClient}
 	return &sgHandler, nil
 }
@@ -53,18 +61,18 @@ func (AzureCloudConnection) CreateKeyPairHandler() (irs.KeyPairHandler, error) {
 	return nil, nil
 }
 func (cloudConn *AzureCloudConnection) CreateVNicHandler() (irs.VNicHandler, error) {
-	fmt.Println("Azure Cloud Driver: called CreateVNicHandler()!")
+	cblogger.Info("Azure Cloud Driver: called CreateVNicHandler()!")
 	vNicHandler := azrs.AzureVNicHandler{cloudConn.Region, cloudConn.Ctx, cloudConn.VNicClient, cloudConn.SubnetClient}
 	return &vNicHandler, nil
 }
 func (cloudConn *AzureCloudConnection) CreatePublicIPHandler() (irs.PublicIPHandler, error) {
-	fmt.Println("Azure Cloud Driver: called CreatePublicIPHandler()!")
+	cblogger.Info("Azure Cloud Driver: called CreatePublicIPHandler()!")
 	publicIPHandler := azrs.AzurePublicIPHandler{cloudConn.Region, cloudConn.Ctx, cloudConn.PublicIPClient}
 	return &publicIPHandler, nil
 }
 
 func (cloudConn *AzureCloudConnection) CreateVMHandler() (irs.VMHandler, error) {
-	fmt.Println("Azure Cloud Driver: called CreateVMHandler()!")
+	cblogger.Info("Azure Cloud Driver: called CreateVMHandler()!")
 	vmHandler := azrs.AzureVMHandler{cloudConn.Region, cloudConn.Ctx, cloudConn.VMClient}
 	return &vmHandler, nil
 }
