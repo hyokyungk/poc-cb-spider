@@ -1,9 +1,18 @@
 package adaptiveip
 
 import (
-	"fmt"
+	//"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type IPInfo struct {
 	IP      string `json:"addr"`
@@ -31,7 +40,7 @@ type AdaptiveIPInfo struct {
 
 func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]AdaptiveIPInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "adaptive-ips")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -47,7 +56,7 @@ func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]Ad
 
 func ListAvailableIP(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]IPInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "ips")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -63,7 +72,7 @@ func ListAvailableIP(restClient *client.RestClient, requestOpts *client.RequestO
 
 func Get(restClient *client.RestClient, adaptiveIPId string, requestOpts *client.RequestOpts) (*AdaptiveIPInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "adaptive-ips", adaptiveIPId, "detail")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -79,7 +88,7 @@ func Get(restClient *client.RestClient, adaptiveIPId string, requestOpts *client
 
 func Create(restClient *client.RestClient, requestOpts *client.RequestOpts) (*AdaptiveIPInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "adaptive-ips")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 
@@ -96,7 +105,7 @@ func Create(restClient *client.RestClient, requestOpts *client.RequestOpts) (*Ad
 
 func Delete(restClient *client.RestClient, adaptiveIP string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "adaptive-ips", adaptiveIP)
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Delete(requestURL, requestOpts); result.Err != nil {

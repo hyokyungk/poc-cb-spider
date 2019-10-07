@@ -2,16 +2,25 @@ package main
 
 import (
 	"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	cidrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 func main() {
 	testCreateVM()
@@ -44,25 +53,25 @@ func testCreateVM() {
 	//vNicHandler, _ := cloudConnection.CreateVNicHandler()
 
 	// 1. Virtual Network 생성
-	fmt.Println("Start CreateVNetwork() ...")
+	cblogger.Info("Start CreateVNetwork() ...")
 	vNetReqInfo := irs.VNetworkReqInfo{Name: config.Cloudit.Resource.VirtualNetwork.Name}
 	vNetwork, err := vNetworkHandler.CreateVNetwork(vNetReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	fmt.Println("Finish CreateVNetwork()")
+	cblogger.Info("Finish CreateVNetwork()")
 
 	// 2. Security Group 생성
-	fmt.Println("Start CreateSecurity() ...")
+	cblogger.Info("Start CreateSecurity() ...")
 	secReqInfo := irs.SecurityReqInfo{Name: config.Cloudit.Resource.Security.Name}
 	securityGroup, err := securityHandler.CreateSecurity(secReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	fmt.Println("Finish CreateSecurity()")
+	cblogger.Info("Finish CreateSecurity()")
 
 	// 3. VM 생성
-	fmt.Println("Start Create VM ...")
+	cblogger.Info("Start Create VM ...")
 	vmReqInfo := irs.VMReqInfo{
 		Name: config.Cloudit.VMInfo.Name,
 		ImageInfo: irs.ImageInfo{
@@ -79,21 +88,21 @@ func testCreateVM() {
 			AdminPassword: config.Cloudit.VMInfo.RootPassword,
 		},
 	}
-	
+
 	spew.Dump(vmReqInfo)
-	
+
 	vm, err := vmHandler.StartVM(vmReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	fmt.Println("Finish Create VM")
-	
+	cblogger.Info("Finish Create VM")
+
 	// VM 생성이 완료까지 대기
 	var vmInfo irs.VMInfo
 	vmCreated := false
 	for !vmCreated {
 		if status := vmHandler.GetVMStatus(vm.Id); strings.ToUpper(fmt.Sprint(status)) != "RUNNING" {
-			fmt.Println("Wait for VM Create finished...")
+			cblogger.Info("Wait for VM Create finished...")
 			time.Sleep(3 * time.Second)
 		} else {
 			vmCreated = true
@@ -101,19 +110,19 @@ func testCreateVM() {
 		}
 	}
 	spew.Dump(vmInfo)
-	
+
 	// 4. Public IP 생성
-	fmt.Println("Start CreatePublicIP() ...")
+	cblogger.Info("Start CreatePublicIP() ...")
 	publicIPReqInfo := irs.PublicIPReqInfo{
 		Name: config.Cloudit.Resource.PublicIP.Name,
-		Id: vmInfo.PrivateIP,
+		Id:   vmInfo.PrivateIP,
 	}
 	publicIP, err := publicIPHandler.CreatePublicIP(publicIPReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	spew.Dump(publicIP)
-	fmt.Println("Finish CreatePublicIP()")
+	cblogger.Info("Finish CreatePublicIP()")
 }
 
 func cleanResource() {
@@ -133,13 +142,13 @@ type Config struct {
 			Name string `yaml:"name"`
 			ID   string `yaml:"id"`
 		} `yaml:"image_info"`
-		
+
 		securityGroup struct {
 			Name           string `yaml:"name"`
 			ID             string `yaml:"id"`
 			SecuiryGroupID string `yaml:"securitygroupid"`
 		} `yaml:"sg_info"`
-		
+
 		Resource struct {
 			Image struct {
 				Name string `yaml:"name"`
@@ -156,7 +165,7 @@ type Config struct {
 			VNic struct {
 				Mac string `yaml:"mac"`
 			} `yaml:"vnic_info"`
-			VM struct{
+			VM struct {
 				Name string `yaml:"name"`
 			} `yaml:"vm"`
 		} `yaml:"resource"`
@@ -178,13 +187,13 @@ func readConfigFile() Config {
 	rootPath := os.Getenv("CBSPIDER_PATH")
 	data, err := ioutil.ReadFile(rootPath + "/config/config.yaml")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	return config
 }

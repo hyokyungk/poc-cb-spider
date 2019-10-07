@@ -1,10 +1,18 @@
 package server
 
 import (
-	"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client/iam/securitygroup"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type ServerInfo struct {
 	VolumeInfoList interface{}
@@ -88,13 +96,13 @@ type ServerInfo struct {
 
 func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]ServerInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers")
-	fmt.Println(requestURL)
-	
+	cblogger.Info(requestURL)
+
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
 		return nil, result.Err
 	}
-	
+
 	var server []ServerInfo
 	if err := result.ExtractInto(&server); err != nil {
 		return nil, err
@@ -104,11 +112,11 @@ func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]Se
 
 func Get(restClient *client.RestClient, id string, requestOpts *client.RequestOpts) (*ServerInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", id)
-	fmt.Println(requestURL)
-	
+	cblogger.Info(requestURL)
+
 	var result client.Result
 	_, result.Err = restClient.Get(requestURL, &result.Body, requestOpts)
-	
+
 	var server ServerInfo
 	if err := result.ExtractInto(&server); err != nil {
 		return nil, err
@@ -119,7 +127,7 @@ func Get(restClient *client.RestClient, id string, requestOpts *client.RequestOp
 // create
 func Start(restClient *client.RestClient, requestOpts *client.RequestOpts) (*ServerInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Post(requestURL, nil, &result.Body, requestOpts); result.Err != nil {
@@ -130,14 +138,14 @@ func Start(restClient *client.RestClient, requestOpts *client.RequestOpts) (*Ser
 	if err := result.ExtractInto(&server); err != nil {
 		return nil, err
 	}
-	
+
 	return &server, nil
 }
 
 //shutdown
 func Suspend(restClient *client.RestClient, id string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", id, "shutdown")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Post(requestURL, nil, nil, requestOpts); result.Err != nil {
@@ -149,7 +157,7 @@ func Suspend(restClient *client.RestClient, id string, requestOpts *client.Reque
 //start
 func Resume(restClient *client.RestClient, id string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", id, "start")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Post(requestURL, nil, nil, requestOpts); result.Err != nil {
@@ -161,7 +169,7 @@ func Resume(restClient *client.RestClient, id string, requestOpts *client.Reques
 //reboot
 func Reboot(restClient *client.RestClient, id string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", id, "reboot")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Post(requestURL, nil, nil, requestOpts); result.Err != nil {
@@ -173,7 +181,7 @@ func Reboot(restClient *client.RestClient, id string, requestOpts *client.Reques
 //delete
 func Terminate(restClient *client.RestClient, id string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", id)
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Delete(requestURL, requestOpts); result.Err != nil {

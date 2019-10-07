@@ -3,13 +3,22 @@ package resources
 import (
 	"errors"
 	"fmt"
+	//cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client/dna/subnet"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
 	"github.com/davecgh/go-spew/spew"
+	//"github.com/sirupsen/logrus"
 	"strconv"
 )
+
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
 
 type ClouditVNetworkHandler struct {
 	CredentialInfo idrv.CredentialInfo
@@ -77,7 +86,7 @@ func (vNetworkHandler *ClouditVNetworkHandler) ListVNetwork() ([]*irs.VNetworkIn
 		return nil, err
 	} else {
 		for i, vNet := range *vNetList {
-			fmt.Println("[" + strconv.Itoa(i) + "]")
+			cblogger.Info("[" + strconv.Itoa(i) + "]")
 			spew.Dump(vNet)
 		}
 		return nil, nil

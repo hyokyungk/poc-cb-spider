@@ -1,11 +1,20 @@
 package cloudit
 
 import (
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	cicon "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/connect"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	icon "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/connect"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type ClouditDriver struct{}
 
@@ -35,7 +44,7 @@ func (driver *ClouditDriver) ConnectCloud(connectionInfo idrv.ConnectionInfo) (i
 
 	Client, err := getServiceClient(connectionInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	iConn := cicon.ClouditCloudConnection{

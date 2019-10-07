@@ -1,14 +1,26 @@
 package resources
 
 import (
-	"fmt"
+	cblog "github.com/cloud-barista/cb-log"
+	//"fmt"
+	//cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client/ace/image"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/sirupsen/logrus"
+
+	//"github.com/sirupsen/logrus"
 	"strconv"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type ClouditImageHandler struct {
 	CredentialInfo idrv.CredentialInfo
@@ -68,7 +80,7 @@ func (imageHandler *ClouditImageHandler) ListImage() ([]*irs.ImageInfo, error) {
 		return nil, err
 	} else {
 		for i, image := range *imageList {
-			fmt.Println("[" + strconv.Itoa(i) + "]")
+			cblogger.Info("[" + strconv.Itoa(i) + "]")
 			spew.Dump(image)
 		}
 		return nil, nil

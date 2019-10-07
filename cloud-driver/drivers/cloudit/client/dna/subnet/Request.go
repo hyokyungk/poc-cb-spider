@@ -1,9 +1,18 @@
 package subnet
 
 import (
-	"fmt"
+	//"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type SubnetInfo struct {
 	ID          string
@@ -23,7 +32,7 @@ type SubnetInfo struct {
 
 func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]SubnetInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "subnets")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -39,7 +48,7 @@ func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]Su
 
 func ListCreatableSubnet(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]SubnetInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "subnets", "creatable")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -55,7 +64,7 @@ func ListCreatableSubnet(restClient *client.RestClient, requestOpts *client.Requ
 
 func Get(restClient *client.RestClient, subnetId string, requestOpts *client.RequestOpts) (*SubnetInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "subnets", subnetId, "detail")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -71,7 +80,7 @@ func Get(restClient *client.RestClient, subnetId string, requestOpts *client.Req
 
 func Create(restClient *client.RestClient, requestOpts *client.RequestOpts) (*SubnetInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "subnets")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 
@@ -88,7 +97,7 @@ func Create(restClient *client.RestClient, requestOpts *client.RequestOpts) (*Su
 
 func Delete(restClient *client.RestClient, addr string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.DNA, "subnets", addr)
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Delete(requestURL, requestOpts); result.Err != nil {

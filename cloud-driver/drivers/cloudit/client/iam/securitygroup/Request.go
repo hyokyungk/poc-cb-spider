@@ -1,9 +1,17 @@
 package securitygroup
 
 import (
-	"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type SecurityGroupRules struct {
 	ID         string `json:"id"`
@@ -33,7 +41,7 @@ type SecurityGroupInfo struct {
 
 func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]SecurityGroupInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.IAM, "securitygroups")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -49,13 +57,13 @@ func List(restClient *client.RestClient, requestOpts *client.RequestOpts) (*[]Se
 
 func ListRule(restClient *client.RestClient, securitygroupId string, requestOpts *client.RequestOpts) (*[]SecurityGroupRules, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.IAM, "securitygroups", securitygroupId)
-	fmt.Println(requestURL)
-	
+	cblogger.Info(requestURL)
+
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
 		return nil, result.Err
 	}
-	
+
 	var sgRules []SecurityGroupRules
 	if err := result.ExtractInto(&sgRules); err != nil {
 		return nil, err
@@ -65,13 +73,12 @@ func ListRule(restClient *client.RestClient, securitygroupId string, requestOpts
 
 func Get(restClient *client.RestClient, securitygroupId string, requestOpts *client.RequestOpts) (*SecurityGroupInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.IAM, "securitygroups", securitygroupId, "detail")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
 		return nil, result.Err
 	}
-	
 
 	var securityGroup SecurityGroupInfo
 	if err := result.ExtractInto(&securityGroup); err != nil {
@@ -82,7 +89,7 @@ func Get(restClient *client.RestClient, securitygroupId string, requestOpts *cli
 
 func Create(restClient *client.RestClient, requestOpts *client.RequestOpts) (*SecurityGroupInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.IAM, "securitygroups")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Post(requestURL, nil, &result.Body, requestOpts); result.Err != nil {
@@ -98,7 +105,7 @@ func Create(restClient *client.RestClient, requestOpts *client.RequestOpts) (*Se
 
 func Delete(restClient *client.RestClient, securitygroupId string, requestOpts *client.RequestOpts) error {
 	requestURL := restClient.CreateRequestBaseURL(client.IAM, "securitygroups", securitygroupId)
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Delete(requestURL, requestOpts); result.Err != nil {

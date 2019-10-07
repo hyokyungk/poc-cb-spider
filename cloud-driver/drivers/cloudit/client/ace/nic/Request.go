@@ -1,38 +1,46 @@
 package nic
 
 import (
-	"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client/iam/securitygroup"
+	"github.com/sirupsen/logrus"
 )
 
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
+
 type VmNicInfo struct {
-	TenantId    string
-	VmId        string
-	Type        string
-	Mac         string
-	Dev         string
-	Ip          string
-	SubnetAddr  string
-	Creator     string
-	CreatedAt   string
-	VmName      string
-	NetworkName string
-	AdaptiveIp  string
-	State       string
-	Template    string
-	SpecName    string
-	CpuNum      string
-	MemSize     string
-	VolumeSize  string
-	Qos         int
-	SecGroups   []securitygroup.SecurityGroupRules
+	TenantId        string
+	VmId            string
+	Type            string
+	Mac             string
+	Dev             string
+	Ip              string
+	SubnetAddr      string
+	Creator         string
+	CreatedAt       string
+	VmName          string
+	NetworkName     string
+	AdaptiveIp      string
+	State           string
+	Template        string
+	SpecName        string
+	CpuNum          string
+	MemSize         string
+	VolumeSize      string
+	Qos             int
+	SecGroups       []securitygroup.SecurityGroupRules
 	AdaptiveMapInfo interface{}
 }
 
 func List(restClient *client.RestClient, serverId string, requestOpts *client.RequestOpts) (*[]VmNicInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", serverId, "nics")
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -48,7 +56,7 @@ func List(restClient *client.RestClient, serverId string, requestOpts *client.Re
 
 func Get(restClient *client.RestClient, serverId string, macAddr string, requestOpts *client.RequestOpts) (*VmNicInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", serverId, "nics", macAddr)
-	fmt.Println(requestURL)
+	cblogger.Info(requestURL)
 
 	var result client.Result
 	if _, result.Err = restClient.Get(requestURL, &result.Body, requestOpts); result.Err != nil {
@@ -64,12 +72,12 @@ func Get(restClient *client.RestClient, serverId string, macAddr string, request
 
 func Create(restClient *client.RestClient, serverId string, requestOpts *client.RequestOpts) (*VmNicInfo, error) {
 	requestURL := restClient.CreateRequestBaseURL(client.ACE, "servers", serverId, "nics")
-	
+
 	var result client.Result
 	if _, result.Err = restClient.Post(requestURL, nil, &result.Body, requestOpts); result.Err != nil {
 		return nil, result.Err
 	}
-	
+
 	var nicInfo VmNicInfo
 	if err := result.ExtractInto(&nicInfo); err != nil {
 		return nil, err

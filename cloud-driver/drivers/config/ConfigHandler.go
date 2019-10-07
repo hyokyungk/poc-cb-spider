@@ -1,12 +1,21 @@
 package config
 
 import (
+	cblog "github.com/cloud-barista/cb-log"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type Config struct {
 	Openstack struct {
@@ -57,13 +66,13 @@ func ReadConfigFile() Config {
 	rootPath := os.Getenv("CBSPIDER_PATH")
 	data, err := ioutil.ReadFile(rootPath + "/config/config.yaml")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	return config

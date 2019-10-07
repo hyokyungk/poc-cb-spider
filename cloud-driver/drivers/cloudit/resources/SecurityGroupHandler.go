@@ -1,7 +1,6 @@
 package resources
 
 import (
-	"fmt"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client/iam/securitygroup"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
@@ -9,6 +8,13 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"strconv"
 )
+
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
 
 type ClouditSecurityHandler struct {
 	CredentialInfo idrv.CredentialInfo
@@ -18,16 +24,16 @@ type ClouditSecurityHandler struct {
 func (securityHandler *ClouditSecurityHandler) CreateSecurity(securityReqInfo irs.SecurityReqInfo) (irs.SecurityInfo, error) {
 	securityHandler.Client.TokenID = securityHandler.CredentialInfo.AuthToken
 	authHeader := securityHandler.Client.AuthenticatedHeaders()
-	
+
 	// @TODO: SecurityGroup 생성 요청 파라미터 정의 필요
 	type SecurityReqInfo struct {
 		Name       string                             `json:"name" required:"true"`
 		Rules      []securitygroup.SecurityGroupRules `json:"rules" required:"false"`
 		Protection int                                `json:"protection" required:"false"`
 	}
-	
+
 	reqInfo := SecurityReqInfo{
-		Name:       securityReqInfo.Name,
+		Name: securityReqInfo.Name,
 		Rules: []securitygroup.SecurityGroupRules{
 			{
 				Name:     "SSH Inbound",
@@ -80,7 +86,7 @@ func (securityHandler *ClouditSecurityHandler) ListSecurity() ([]*irs.SecurityIn
 			}
 		}
 		for i, security := range *securityList {
-			fmt.Println("[" + strconv.Itoa(i) + "]")
+			cblogger.Info("[" + strconv.Itoa(i) + "]")
 			spew.Dump(security)
 		}
 		return nil, nil

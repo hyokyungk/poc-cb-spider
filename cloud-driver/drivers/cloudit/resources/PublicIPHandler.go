@@ -3,13 +3,22 @@ package resources
 import (
 	"errors"
 	"fmt"
+	//cblog "github.com/cloud-barista/cb-log"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client"
 	"github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/cloudit/client/dna/adaptiveip"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
 	"github.com/davecgh/go-spew/spew"
+	//"github.com/sirupsen/logrus"
 	"strconv"
 )
+
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
 
 type ClouditPublicIPHandler struct {
 	CredentialInfo idrv.CredentialInfo
@@ -57,7 +66,8 @@ func (publicIPHandler *ClouditPublicIPHandler) CreatePublicIP(publicIPReqInfo ir
 	}
 	publicIP, err := adaptiveip.Create(publicIPHandler.Client, &createOpts)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
+		return irs.PublicIPInfo{}, err
 	} else {
 		spew.Dump(publicIP)
 		return irs.PublicIPInfo{Id: publicIP.IP, Name: publicIP.Name}, nil
@@ -77,7 +87,7 @@ func (publicIPHandler *ClouditPublicIPHandler) ListPublicIP() ([]*irs.PublicIPIn
 		return nil, err
 	} else {
 		for i, publicIP := range *publicIPList {
-			fmt.Println("[" + strconv.Itoa(i) + "]")
+			cblogger.Info("[" + strconv.Itoa(i) + "]")
 			spew.Dump(publicIP)
 		}
 		return nil, nil
