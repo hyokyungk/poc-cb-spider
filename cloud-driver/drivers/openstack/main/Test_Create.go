@@ -1,17 +1,26 @@
 package main
 
 import (
+	cblog "github.com/cloud-barista/cb-log"
 	osdrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/openstack"
 	osconn "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/openstack/connect"
 	osrs "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/openstack/resources"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"time"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 func main() {
 	testCreateVM()
@@ -54,7 +63,7 @@ func testCreateVM() {
 	vNetReqInfo := irs.VNetworkReqInfo{Name: config.Openstack.VirtualNetwork.Name}
 	vNet, err := vNetworkHandler.CreateVNetwork(vNetReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	// 2. Router 생성 및 인터페이스 등록
@@ -66,27 +75,27 @@ func testCreateVM() {
 	}
 	router, err := routerHandler.CreateRouter(routerReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	// 인터페이스 등록(연결)
 	irReqInfo := osrs.InterfaceReqInfo{RouterId: router.Id, SubnetId: vNet.SubnetId}
 	_, err = routerHandler.AddInterface(irReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	// 3. Security Group 생성
 	sgReqInfo := irs.SecurityReqInfo{Name: config.Openstack.SecurityGroup.Name}
 	sg, err := securityHandler.CreateSecurity(sgReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	// 4. KeyPair 생성
 	/*keypairReqInfo := irs.KeyPairReqInfo{Name: config.Openstack.KeyPair.Name}
 	keypair, err := keyPairHandler.CreateKey(keypairReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}*/
 
 	// 5. VM 생성
@@ -109,7 +118,7 @@ func testCreateVM() {
 
 	vm, err := vmHandler.StartVM(vmReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	spew.Dump(vm)
 
@@ -118,7 +127,7 @@ func testCreateVM() {
 	pubIPReqInfo := irs.PublicIPReqInfo{}
 	publicIP, err := publicIPHandler.CreatePublicIP(pubIPReqInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	// 네트워크 초기화
@@ -129,7 +138,7 @@ func testCreateVM() {
 	openStackPublicIPHandler := publicIPHandler.(*osrs.OpenStackPublicIPHandler)
 	_, err = openStackPublicIPHandler.AssociatePublicIP(vm.Id, IP.Id)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -180,13 +189,13 @@ func readConfigFile() Config {
 	rootPath := os.Getenv("CBSPIDER_PATH")
 	data, err := ioutil.ReadFile(rootPath + "/config/config.yaml")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	return config
 }

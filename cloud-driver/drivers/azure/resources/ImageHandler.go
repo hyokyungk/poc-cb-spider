@@ -12,6 +12,13 @@ import (
 	"strings"
 )
 
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
+
 type AzureImageHandler struct {
 	Region idrv.RegionInfo
 	Ctx    context.Context
@@ -59,7 +66,7 @@ func (imageHandler *AzureImageHandler) CreateImage(imageReqInfo irs.ImageReqInfo
 		// edited by powerkim for test, 2019.08.13
 		DiskId: "/subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/CB-RESOURCE-GROUP/providers/Microsoft.Compute/disks/vm_name_OsDisk_1_2d63d9cd754c4094b1b1fb6a98c36b71",
 	}
-	
+
 	// Check Image Exists
 	image, err := imageHandler.Client.Get(imageHandler.Ctx, imageIdArr[0], imageIdArr[1], "")
 	if image.ID != nil {
@@ -67,7 +74,7 @@ func (imageHandler *AzureImageHandler) CreateImage(imageReqInfo irs.ImageReqInfo
 		createErr := errors.New(errMsg)
 		return irs.ImageInfo{}, createErr
 	}
-	
+
 	createOpts := compute.Image{
 		ImageProperties: &compute.ImageProperties{
 			StorageProfile: &compute.ImageStorageProfile{
@@ -99,7 +106,7 @@ func (imageHandler *AzureImageHandler) ListImage() ([]*irs.ImageInfo, error) {
 	//resultList, err := imageHandler.Client.List(imageHandler.Ctx)
 	resultList, err := imageHandler.Client.ListByResourceGroup(imageHandler.Ctx, imageHandler.Region.ResourceGroup)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	var imageList []*ImageInfo
@@ -118,7 +125,7 @@ func (imageHandler *AzureImageHandler) GetImage(imageID string) (irs.ImageInfo, 
 
 	image, err := imageHandler.Client.Get(imageHandler.Ctx, imageIdArr[0], imageIdArr[1], "")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	imageInfo := new(ImageInfo).setter(image)

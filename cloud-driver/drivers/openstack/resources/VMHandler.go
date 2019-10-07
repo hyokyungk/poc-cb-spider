@@ -11,14 +11,23 @@
 package resources
 
 import (
-	"fmt"
+	//"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack/compute/v2/extensions/keypairs"
 	"github.com/rackspace/gophercloud/openstack/compute/v2/extensions/startstop"
 	"github.com/rackspace/gophercloud/openstack/compute/v2/servers"
 	"github.com/rackspace/gophercloud/pagination"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 // modified by powerkim, 2019.07.29
 type OpenStackVMHandler struct {
@@ -60,14 +69,14 @@ func (vmHandler *OpenStackVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInf
 func (vmHandler *OpenStackVMHandler) SuspendVM(vmID string) {
 	err := startstop.Stop(vmHandler.Client, vmID).Err
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
 func (vmHandler *OpenStackVMHandler) ResumeVM(vmID string) {
 	err := startstop.Start(vmHandler.Client, vmID).Err
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -79,14 +88,14 @@ func (vmHandler *OpenStackVMHandler) RebootVM(vmID string) {
 	rebootOpts := servers.SoftReboot
 	err := servers.Reboot(vmHandler.Client, vmID, rebootOpts).ExtractErr()
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
 func (vmHandler *OpenStackVMHandler) TerminateVM(vmID string) {
 	err := servers.Delete(vmHandler.Client, vmID).ExtractErr()
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -112,7 +121,7 @@ func (vmHandler *OpenStackVMHandler) ListVMStatus() []*irs.VMStatusInfo {
 		return true, nil
 	})
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	return vmStatusList
@@ -121,7 +130,7 @@ func (vmHandler *OpenStackVMHandler) ListVMStatus() []*irs.VMStatusInfo {
 func (vmHandler *OpenStackVMHandler) GetVMStatus(vmID string) irs.VMStatus {
 	serverResult, err := servers.Get(vmHandler.Client, vmID).Extract()
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	return irs.VMStatus(serverResult.Status)
 }
@@ -144,7 +153,7 @@ func (vmHandler *OpenStackVMHandler) ListVM() []*irs.VMInfo {
 		return true, nil
 	})
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	return vmList
@@ -153,7 +162,7 @@ func (vmHandler *OpenStackVMHandler) ListVM() []*irs.VMInfo {
 func (vmHandler *OpenStackVMHandler) GetVM(vmID string) irs.VMInfo {
 	serverResult, err := servers.Get(vmHandler.Client, vmID).Extract()
 	if err != nil {
-		fmt.Println(err)
+		cblogger.Info(err)
 		return irs.VMInfo{}
 	}
 

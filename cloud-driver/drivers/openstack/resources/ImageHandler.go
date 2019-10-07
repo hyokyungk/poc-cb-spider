@@ -14,6 +14,13 @@ import (
 	"os"
 )
 
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
+
 type OpenStackImageHandler struct {
 	Client      *gophercloud.ServiceClient
 	ImageClient *gophercloud.ServiceClient
@@ -92,7 +99,7 @@ func (imageHandler *OpenStackImageHandler) CreateImage(imageReqInfo irs.ImageReq
 	if result.Err != nil {
 		return irs.ImageInfo{}, err
 	}
-	fmt.Println(result)
+	cblogger.Info(result)
 
 	imageInfo := irs.ImageInfo{
 		Id:   image.ID,

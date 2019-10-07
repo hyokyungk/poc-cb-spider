@@ -2,63 +2,72 @@ package main
 
 import (
 	"fmt"
+	cblog "github.com/cloud-barista/cb-log"
 	azdrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/azure"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 )
 
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
+
 func testImageHandler(config Config) {
 	resourceHandler, err := getResourceHandler("image")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	imageHandler := resourceHandler.(irs.ImageHandler)
- 
-	fmt.Println("Test ImageHandler")
-	fmt.Println("1. ListImage()")
-	fmt.Println("2. GetImage()")
-	fmt.Println("3. CreateImage()")
-	fmt.Println("4. DeleteImage()")
-	fmt.Println("5. Exit")
-	
+
+	cblogger.Info("Test ImageHandler")
+	cblogger.Info("1. ListImage()")
+	cblogger.Info("2. GetImage()")
+	cblogger.Info("3. CreateImage()")
+	cblogger.Info("4. DeleteImage()")
+	cblogger.Info("5. Exit")
+
 	imageId := config.Azure.ImageInfo.GroupName + ":" + config.Azure.ImageInfo.Name
-	
+
 Loop:
 	for {
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			panic(err)
+			cblogger.Error(err)
 		}
-		
+
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListImage() ...")
+				cblogger.Info("Start ListImage() ...")
 				imageHandler.ListImage()
-				fmt.Println("Finish ListImage()")
+				cblogger.Info("Finish ListImage()")
 			case 2:
-				fmt.Println("Start GetImage() ...")
+				cblogger.Info("Start GetImage() ...")
 				imageHandler.GetImage(imageId)
-				fmt.Println("Finish GetImage()")
+				cblogger.Info("Finish GetImage()")
 			case 3:
-				fmt.Println("Start CreateImage() ...")
+				cblogger.Info("Start CreateImage() ...")
 				reqInfo := irs.ImageReqInfo{Id: imageId}
 				_, err := imageHandler.CreateImage(reqInfo)
 				if err != nil {
-					panic(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish CreateImage()")
+				cblogger.Info("Finish CreateImage()")
 			case 4:
-				fmt.Println("Start DeleteImage() ...")
+				cblogger.Info("Start DeleteImage() ...")
 				imageHandler.DeleteImage(imageId)
-				fmt.Println("Finish DeleteImage()")
+				cblogger.Info("Finish DeleteImage()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -68,18 +77,18 @@ Loop:
 func testPublicIPHanlder(config Config) {
 	resourceHandler, err := getResourceHandler("publicip")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	
+
 	publicIPHandler := resourceHandler.(irs.PublicIPHandler)
-	
-	fmt.Println("Test PublicIPHandler")
-	fmt.Println("1. ListPublicIP()")
-	fmt.Println("2. GetPublicIP()")
-	fmt.Println("3. CreatePublicIP()")
-	fmt.Println("4. DeletePublicIP()")
-	fmt.Println("5. Exit")
-	
+
+	cblogger.Info("Test PublicIPHandler")
+	cblogger.Info("1. ListPublicIP()")
+	cblogger.Info("2. GetPublicIP()")
+	cblogger.Info("3. CreatePublicIP()")
+	cblogger.Info("4. DeletePublicIP()")
+	cblogger.Info("5. Exit")
+
 	publicIPId := config.Azure.PublicIP.GroupName + ":" + config.Azure.PublicIP.Name
 
 Loop:
@@ -87,33 +96,33 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			panic(err)
+			cblogger.Error(err)
 		}
-		
+
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListPublicIP() ...")
+				cblogger.Info("Start ListPublicIP() ...")
 				publicIPHandler.ListPublicIP()
-				fmt.Println("Finish ListPublicIP()")
+				cblogger.Info("Finish ListPublicIP()")
 			case 2:
-				fmt.Println("Start GetPublicIP() ...")
+				cblogger.Info("Start GetPublicIP() ...")
 				publicIPHandler.GetPublicIP(publicIPId)
-				fmt.Println("Finish GetPublicIP()")
+				cblogger.Info("Finish GetPublicIP()")
 			case 3:
-				fmt.Println("Start CreatePublicIP() ...")
+				cblogger.Info("Start CreatePublicIP() ...")
 				reqInfo := irs.PublicIPReqInfo{Id: publicIPId}
 				_, err := publicIPHandler.CreatePublicIP(reqInfo)
 				if err != nil {
-					panic(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish CreatePublicIP()")
+				cblogger.Info("Finish CreatePublicIP()")
 			case 4:
-				fmt.Println("Start DeletePublicIP() ...")
+				cblogger.Info("Start DeletePublicIP() ...")
 				publicIPHandler.DeletePublicIP(publicIPId)
-				fmt.Println("Finish DeletePublicIP()")
+				cblogger.Info("Finish DeletePublicIP()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -123,53 +132,53 @@ Loop:
 func testSecurityHandler(config Config) {
 	resourceHandler, err := getResourceHandler("security")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	
+
 	securityHandler := resourceHandler.(irs.SecurityHandler)
-	
-	fmt.Println("Test SecurityHandler")
-	fmt.Println("1. ListSecurity()")
-	fmt.Println("2. GetSecurity()")
-	fmt.Println("3. CreateSecurity()")
-	fmt.Println("4. DeleteSecurity()")
-	fmt.Println("5. Exit")
-	
+
+	cblogger.Info("Test SecurityHandler")
+	cblogger.Info("1. ListSecurity()")
+	cblogger.Info("2. GetSecurity()")
+	cblogger.Info("3. CreateSecurity()")
+	cblogger.Info("4. DeleteSecurity()")
+	cblogger.Info("5. Exit")
+
 	securityGroupId := config.Azure.Security.GroupName + ":" + config.Azure.Security.Name
-	
+
 Loop:
 
 	for {
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			panic(err)
+			cblogger.Error(err)
 		}
-		
+
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListSecurity() ...")
+				cblogger.Info("Start ListSecurity() ...")
 				securityHandler.ListSecurity()
-				fmt.Println("Finish ListSecurity()")
+				cblogger.Info("Finish ListSecurity()")
 			case 2:
-				fmt.Println("Start GetSecurity() ...")
+				cblogger.Info("Start GetSecurity() ...")
 				securityHandler.GetSecurity(securityGroupId)
-				fmt.Println("Finish GetSecurity()")
+				cblogger.Info("Finish GetSecurity()")
 			case 3:
-				fmt.Println("Start CreateSecurity() ...")
+				cblogger.Info("Start CreateSecurity() ...")
 				reqInfo := irs.SecurityReqInfo{Id: securityGroupId}
 				_, err := securityHandler.CreateSecurity(reqInfo)
 				if err != nil {
-					panic(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish CreateSecurity()")
+				cblogger.Info("Finish CreateSecurity()")
 			case 4:
-				fmt.Println("Start DeleteSecurity() ...")
+				cblogger.Info("Start DeleteSecurity() ...")
 				securityHandler.DeleteSecurity(securityGroupId)
-				fmt.Println("Finish DeleteSecurity()")
+				cblogger.Info("Finish DeleteSecurity()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -179,53 +188,53 @@ Loop:
 func testVNetworkHandler(config Config) {
 	resourceHandler, err := getResourceHandler("vnetwork")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	
+
 	vNetworkHandler := resourceHandler.(irs.VNetworkHandler)
-	
-	fmt.Println("Test VNetworkHandler")
-	fmt.Println("1. ListVNetwork()")
-	fmt.Println("2. GetVNetwork()")
-	fmt.Println("3. CreateVNetwork()")
-	fmt.Println("4. DeleteVNetwork()")
-	fmt.Println("5. Exit")
+
+	cblogger.Info("Test VNetworkHandler")
+	cblogger.Info("1. ListVNetwork()")
+	cblogger.Info("2. GetVNetwork()")
+	cblogger.Info("3. CreateVNetwork()")
+	cblogger.Info("4. DeleteVNetwork()")
+	cblogger.Info("5. Exit")
 
 	vNetworkId := config.Azure.VNetwork.GroupName + ":" + config.Azure.VNetwork.Name
-	
+
 Loop:
 
 	for {
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			panic(err)
+			cblogger.Error(err)
 		}
-		
+
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListVNetwork() ...")
+				cblogger.Info("Start ListVNetwork() ...")
 				vNetworkHandler.ListVNetwork()
-				fmt.Println("Finish ListVNetwork()")
+				cblogger.Info("Finish ListVNetwork()")
 			case 2:
-				fmt.Println("Start GetVNetwork() ...")
+				cblogger.Info("Start GetVNetwork() ...")
 				vNetworkHandler.GetVNetwork(vNetworkId)
-				fmt.Println("Finish GetVNetwork()")
+				cblogger.Info("Finish GetVNetwork()")
 			case 3:
-				fmt.Println("Start CreateVNetwork() ...")
+				cblogger.Info("Start CreateVNetwork() ...")
 				reqInfo := irs.VNetworkReqInfo{Id: vNetworkId}
 				_, err := vNetworkHandler.CreateVNetwork(reqInfo)
 				if err != nil {
-					panic(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish CreateVNetwork()")
+				cblogger.Info("Finish CreateVNetwork()")
 			case 4:
-				fmt.Println("Start DeleteVNetwork() ...")
+				cblogger.Info("Start DeleteVNetwork() ...")
 				vNetworkHandler.DeleteVNetwork(vNetworkId)
-				fmt.Println("Finish DeleteVNetwork()")
+				cblogger.Info("Finish DeleteVNetwork()")
 			case 5:
-				fmt.Println("Exit")
+				cblogger.Info("Exit")
 				break Loop
 			}
 		}
@@ -235,52 +244,52 @@ Loop:
 func testVNicHandler(config Config) {
 	resourceHandler, err := getResourceHandler("vnic")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	
+
 	vNicHandler := resourceHandler.(irs.VNicHandler)
-	
-	fmt.Println("Test VNicHandler")
-	fmt.Println("1. ListVNic()")
-	fmt.Println("2. GetVNic()")
-	fmt.Println("3. CreateVNic()")
-	fmt.Println("4. DeleteVNic()")
-	fmt.Println("5. Exit Program")
-	
+
+	cblogger.Info("Test VNicHandler")
+	cblogger.Info("1. ListVNic()")
+	cblogger.Info("2. GetVNic()")
+	cblogger.Info("3. CreateVNic()")
+	cblogger.Info("4. DeleteVNic()")
+	cblogger.Info("5. Exit Program")
+
 	vNicId := config.Azure.VNic.GroupName + ":" + config.Azure.VNic.Name
-	
+
 Loop:
 	for {
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			panic(err)
+			cblogger.Error(err)
 		}
-		
+
 		if inputCnt == 1 {
 			switch commandNum {
 			case 1:
-				fmt.Println("Start ListVNic() ...")
+				cblogger.Info("Start ListVNic() ...")
 				vNicHandler.ListVNic()
-				fmt.Println("Finish ListVNic()")
+				cblogger.Info("Finish ListVNic()")
 			case 2:
-				fmt.Println("Start GetVNic() ...")
+				cblogger.Info("Start GetVNic() ...")
 				vNicHandler.GetVNic(vNicId)
-				fmt.Println("Finish GetVNic()")
+				cblogger.Info("Finish GetVNic()")
 			case 3:
-				fmt.Println("Start CreateVNic() ...")
+				cblogger.Info("Start CreateVNic() ...")
 				reqInfo := irs.VNicReqInfo{Id: vNicId}
 				_, err := vNicHandler.CreateVNic(reqInfo)
 				if err != nil {
-					panic(err)
+					cblogger.Error(err)
 				}
-				fmt.Println("Finish CreateVNic()")
+				cblogger.Info("Finish CreateVNic()")
 			case 4:
-				fmt.Println("Start DeleteVNic() ...")
+				cblogger.Info("Start DeleteVNic() ...")
 				vNicHandler.DeleteVNic(vNicId)
-				fmt.Println("Finish DeleteVNic()")
+				cblogger.Info("Finish DeleteVNic()")
 			case 5:
-				fmt.Println("Exit Program")
+				cblogger.Info("Exit Program")
 				break Loop
 			}
 		}
@@ -290,7 +299,7 @@ Loop:
 func getResourceHandler(resourceType string) (interface{}, error) {
 	var cloudDriver idrv.CloudDriver
 	cloudDriver = new(azdrv.AzureDriver)
-	
+
 	config := readConfigFile()
 	connectionInfo := idrv.ConnectionInfo{
 		CredentialInfo: idrv.CredentialInfo{
@@ -300,7 +309,7 @@ func getResourceHandler(resourceType string) (interface{}, error) {
 			SubscriptionId: config.Azure.SubscriptionID,
 		},
 		RegionInfo: idrv.RegionInfo{
-			Region: config.Azure.Location,
+			Region:        config.Azure.Location,
 			ResourceGroup: config.Azure.GroupName,
 		},
 	}
@@ -322,7 +331,7 @@ func getResourceHandler(resourceType string) (interface{}, error) {
 	case "vnic":
 		resourceHandler, err = cloudConnection.CreateVNicHandler()
 	}
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -330,15 +339,15 @@ func getResourceHandler(resourceType string) (interface{}, error) {
 }
 
 func showTestHandlerInfo() {
-	fmt.Println("==========================================================")
-	fmt.Println("[Test ResourceHandler]")
-	fmt.Println("1. ImageHandler")
-	fmt.Println("2. PublicIPHandler")
-	fmt.Println("3. SecurityHandler")
-	fmt.Println("4. VNetworkHandler")
-	fmt.Println("5. VNicHandler")
-	fmt.Println("6. Exit")
-	fmt.Println("==========================================================")
+	cblogger.Info("==========================================================")
+	cblogger.Info("[Test ResourceHandler]")
+	cblogger.Info("1. ImageHandler")
+	cblogger.Info("2. PublicIPHandler")
+	cblogger.Info("3. SecurityHandler")
+	cblogger.Info("4. VNetworkHandler")
+	cblogger.Info("5. VNicHandler")
+	cblogger.Info("6. Exit")
+	cblogger.Info("==========================================================")
 }
 
 func main() {
@@ -352,7 +361,7 @@ Loop:
 		var commandNum int
 		inputCnt, err := fmt.Scan(&commandNum)
 		if err != nil {
-			panic(err)
+			cblogger.Error(err)
 		}
 
 		if inputCnt == 1 {
@@ -373,7 +382,7 @@ Loop:
 				testVNicHandler(config)
 				showTestHandlerInfo()
 			case 6:
-				fmt.Println("Exit Test ResourceHandler Program")
+				cblogger.Info("Exit Test ResourceHandler Program")
 				break Loop
 			}
 		}
@@ -386,10 +395,10 @@ type Config struct {
 		ClientSecret   string `yaml:"client_secret"`
 		TenantId       string `yaml:"tenant_id"`
 		SubscriptionID string `yaml:"subscription_id"`
-		
+
 		GroupName string `yaml:"group_name"`
 		VMName    string `yaml:"vm_name"`
-		
+
 		Location string `yaml:"location"`
 		VMSize   string `yaml:"vm_size"`
 		Image    struct {
@@ -408,32 +417,31 @@ type Config struct {
 			Primary bool   `yaml:"primary"`
 		} `yaml:"network"`
 		ServerId string `yaml:"server_id"`
-		
+
 		ImageInfo struct {
 			GroupName string `yaml:"group_name"`
 			Name      string `yaml:"name"`
 		} `yaml:"image_info"`
-		
+
 		PublicIP struct {
 			GroupName string `yaml:"group_name"`
 			Name      string `yaml:"name"`
 		} `yaml:"public_ip"`
-		
+
 		Security struct {
 			GroupName string `yaml:"group_name"`
 			Name      string `yaml:"name"`
 		} `yaml:"security_group"`
-		
+
 		VNetwork struct {
 			GroupName string `yaml:"group_name"`
 			Name      string `yaml:"name"`
 		} `yaml:"virtual_network"`
-		
+
 		VNic struct {
 			GroupName string `yaml:"group_name"`
 			Name      string `yaml:"name"`
 		} `yaml:"network_interface"`
-		
 	} `yaml:"azure"`
 }
 
@@ -442,14 +450,14 @@ func readConfigFile() Config {
 	rootPath := os.Getenv("CBSPIDER_PATH")
 	data, err := ioutil.ReadFile(rootPath + "/config/config.yaml")
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	
+
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
-	
+
 	return config
 }

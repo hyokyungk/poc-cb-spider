@@ -16,12 +16,21 @@ import (
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2018-06-01/compute"
 	"github.com/Azure/go-autorest/autorest/to"
+	cblog "github.com/cloud-barista/cb-log"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	irs "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/resources"
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"strings"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type AzureVMHandler struct {
 	Region idrv.RegionInfo
@@ -33,10 +42,10 @@ func (vmHandler *AzureVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, e
 	// Set VM Create Information
 	imageId := vmReqInfo.ImageInfo.Id
 	imageIdArr := strings.Split(imageId, ":")
-	
+
 	//sshKeyPath := "test"
 	//sshKeyData := ""
-	
+
 	rootPath := os.Getenv("CBSPIDER_PATH")
 	sshPublicKeyPath := rootPath + "/key/mcb-test-key.pub"
 	var sshKeyData string
@@ -48,10 +57,10 @@ func (vmHandler *AzureVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, e
 		}
 		sshKeyData = string(sshBytes)
 	}
-	
+
 	vmName := vmReqInfo.Name
 	vmNameArr := strings.Split(vmName, ":")
-	
+
 	// Check VM Exists
 	vm, err := vmHandler.Client.Get(vmHandler.Ctx, vmNameArr[0], vmNameArr[1], compute.InstanceView)
 	if vm.ID != nil {
@@ -59,7 +68,7 @@ func (vmHandler *AzureVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, e
 		createErr := errors.New(errMsg)
 		return irs.VMInfo{}, createErr
 	}
-	
+
 	vmOpts := compute.VirtualMachine{
 		Location: &vmHandler.Region.Region,
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
@@ -82,7 +91,7 @@ func (vmHandler *AzureVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, e
 					SSH: &compute.SSHConfiguration{
 						PublicKeys: &[]compute.SSHPublicKey{
 							{
-								Path: to.StringPtr(fmt.Sprintf("/home/%s/.ssh/authorized_keys", vmReqInfo.LoginInfo.AdminUsername)),
+								Path:    to.StringPtr(fmt.Sprintf("/home/%s/.ssh/authorized_keys", vmReqInfo.LoginInfo.AdminUsername)),
 								KeyData: &sshKeyData,
 							},
 						},
@@ -104,18 +113,18 @@ func (vmHandler *AzureVMHandler) StartVM(vmReqInfo irs.VMReqInfo) (irs.VMInfo, e
 
 	future, err := vmHandler.Client.CreateOrUpdate(vmHandler.Ctx, vmNameArr[0], vmNameArr[1], vmOpts)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 		return irs.VMInfo{}, err
 	}
 	err = future.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 		return irs.VMInfo{}, err
 	}
-	
+
 	vm, err = vmHandler.Client.Get(vmHandler.Ctx, vmNameArr[0], vmNameArr[1], compute.InstanceView)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	vmInfo := mappingServerInfo(vm)
 
@@ -127,11 +136,11 @@ func (vmHandler *AzureVMHandler) SuspendVM(vmID string) {
 
 	future, err := vmHandler.Client.PowerOff(vmHandler.Ctx, vmIdArr[0], vmIdArr[1])
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	err = future.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -140,11 +149,11 @@ func (vmHandler *AzureVMHandler) ResumeVM(vmID string) {
 
 	future, err := vmHandler.Client.Start(vmHandler.Ctx, vmIdArr[0], vmIdArr[1])
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	err = future.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -153,11 +162,11 @@ func (vmHandler *AzureVMHandler) RebootVM(vmID string) {
 
 	future, err := vmHandler.Client.Restart(vmHandler.Ctx, vmIdArr[0], vmIdArr[1])
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	err = future.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -167,11 +176,11 @@ func (vmHandler *AzureVMHandler) TerminateVM(vmID string) {
 	future, err := vmHandler.Client.Delete(vmHandler.Ctx, vmIdArr[0], vmIdArr[1])
 	//future, err := vmHandler.Client.Deallocate(vmHandler.Ctx, vmIdArr[0], vmIdArr[1])
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	err = future.WaitForCompletionRef(vmHandler.Ctx, vmHandler.Client.Client)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 }
 
@@ -179,7 +188,7 @@ func (vmHandler *AzureVMHandler) ListVMStatus() []*irs.VMStatusInfo {
 	//serverList, err := vmHandler.Client.ListAll(vmHandler.Ctx)
 	serverList, err := vmHandler.Client.List(vmHandler.Ctx, vmHandler.Region.ResourceGroup)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	var vmStatusList []*irs.VMStatusInfo
@@ -211,7 +220,7 @@ func (vmHandler *AzureVMHandler) GetVMStatus(vmID string) irs.VMStatus {
 	vmIdArr := strings.Split(vmID, ":")
 	instanceView, err := vmHandler.Client.InstanceView(vmHandler.Ctx, vmIdArr[0], vmIdArr[1])
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	// Get powerState, provisioningState
@@ -223,7 +232,7 @@ func (vmHandler *AzureVMHandler) ListVM() []*irs.VMInfo {
 	//serverList, err := vmHandler.Client.ListAll(vmHandler.Ctx)
 	serverList, err := vmHandler.Client.List(vmHandler.Ctx, vmHandler.Region.ResourceGroup)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	var vmList []*irs.VMInfo
@@ -239,7 +248,7 @@ func (vmHandler *AzureVMHandler) GetVM(vmID string) irs.VMInfo {
 	vmIdArr := strings.Split(vmID, ":")
 	vm, err := vmHandler.Client.Get(vmHandler.Ctx, vmIdArr[0], vmIdArr[1], compute.InstanceView)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	vmInfo := mappingServerInfo(vm)

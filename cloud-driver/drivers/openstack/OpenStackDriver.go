@@ -11,12 +11,21 @@
 package openstack
 
 import (
+	cblog "github.com/cloud-barista/cb-log"
 	oscon "github.com/cloud-barista/poc-cb-spider/cloud-driver/drivers/openstack/connect"
 	idrv "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces"
 	icon "github.com/cloud-barista/poc-cb-spider/cloud-driver/interfaces/connect"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
+	"github.com/sirupsen/logrus"
 )
+
+var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}
 
 type OpenStackDriver struct{}
 
@@ -64,15 +73,15 @@ func (driver *OpenStackDriver) ConnectCloud(connectionInfo idrv.ConnectionInfo) 
 
 	Client, err := getServiceClient(connectionInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	ImageClient, err := getImageClient(connectionInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 	NetworkClient, err := getNetworkClient(connectionInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	iConn := oscon.OpenStackCloudConnection{Client, ImageClient, NetworkClient}
@@ -84,7 +93,7 @@ func (driver *OpenStackDriver) ConnectCloud(connectionInfo idrv.ConnectionInfo) 
 
 	NetworkClient, err := getNetworkClient(connectionInfo)
 	if err != nil {
-		panic(err)
+		cblogger.Error(err)
 	}
 
 	//var iConn icon.CloudConnection

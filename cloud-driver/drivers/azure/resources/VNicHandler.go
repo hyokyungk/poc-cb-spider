@@ -11,6 +11,13 @@ import (
 	"strings"
 )
 
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
+
 type AzureVNicHandler struct {
 	Region       idrv.RegionInfo
 	Ctx          context.Context
@@ -77,36 +84,35 @@ func (vNicHandler *AzureVNicHandler) CreateVNic(vNicReqInfo irs.VNicReqInfo) (ir
 		PublicIPId                string
 	}
 	type VNicReqInfo struct {
-		Id                string
-		VNetworkName      string
-		SubnetName        string
+		Id              string
+		VNetworkName    string
+		SubnetName      string
 		SecurityGroupId string
-		IP                []VNicIPReqInfo
+		IP              []VNicIPReqInfo
 	}
 
 	reqInfo := VNicReqInfo{
 		//VNetworkName: "mcb-test-vnet",
 		// edited by powerkim for test, 2019.08.13
 		VNetworkName: "cb-vnet",
-		SubnetName: "default",
+		SubnetName:   "default",
 		IP: []VNicIPReqInfo{
 			{
 				Name:                      "ipConfig1",
 				PrivateIPAllocationMethod: "Dynamic",
 				//PublicIPId:                "/subscriptions/cb592624-b77b-4a8f-bb13-0e5a48cae40f/resourceGroups/inno-platform1-rsrc-grup/providers/Microsoft.Network/publicIPAddresses/mcb-test-publicip", // @todo
 				//changed by powerkim for test, 2019.09.02
-				PublicIPId:                "/subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/publicIPAddresses/powerkim-test1-ip",
+				PublicIPId: "/subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/publicIPAddresses/powerkim-test1-ip",
 			},
 		},
 		//SecurityGroupId: "/subscriptions/cb592624-b77b-4a8f-bb13-0e5a48cae40f/resourceGroups/inno-platform1-rsrc-grup/providers/Microsoft.Network/networkSecurityGroups/mcb-test-sg", // @todo
 		//edited by powerkim for test, 2019.08.13
 		//SecurityGroupId: "cb-security-group", // changed by powerkim, 2019.09.02
 		SecurityGroupId: "/subscriptions/f1548292-2be3-4acd-84a4-6df079160846/resourceGroups/cb-resource-group/providers/Microsoft.Network/networkSecurityGroups/cb-security-group",
-
 	}
 
 	vNicIdArr := strings.Split(vNicReqInfo.Id, ":")
-	
+
 	// Check vNic Exists
 	vNic, err := vNicHandler.NicClient.Get(vNicHandler.Ctx, vNicIdArr[0], vNicIdArr[1], "")
 	if vNic.ID != nil {
@@ -142,7 +148,7 @@ func (vNicHandler *AzureVNicHandler) CreateVNic(vNicReqInfo irs.VNicReqInfo) (ir
 		Location: &vNicHandler.Region.Region,
 		//NetworkSecurityGroup:
 	}
-	
+
 	future, err := vNicHandler.NicClient.CreateOrUpdate(vNicHandler.Ctx, vNicIdArr[0], vNicIdArr[1], createOpts)
 	if err != nil {
 		return irs.VNicInfo{}, err

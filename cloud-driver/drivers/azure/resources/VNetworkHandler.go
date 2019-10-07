@@ -11,6 +11,13 @@ import (
 	"strings"
 )
 
+/*var cblogger *logrus.Logger
+
+func init() {
+	// cblog is a global variable.
+	cblogger = cblog.GetLogger("CB-SPIDER")
+}*/
+
 type AzureVNetworkHandler struct {
 	Region idrv.RegionInfo
 	Ctx    context.Context
@@ -66,9 +73,9 @@ func (vNetworkHandler *AzureVNetworkHandler) CreateVNetwork(vNetworkReqInfo irs.
 	reqInfo := VNetworkReqInfo{
 		Name:            vNicIdArr[1],
 		AddressPrefixes: []string{"130.0.0.0/8"},
-		Subnets:         &[]SubnetInfo{
+		Subnets: &[]SubnetInfo{
 			{
-				Name: "default",
+				Name:          "default",
 				AddressPrefix: "130.1.0.0/16",
 			},
 		},
@@ -84,7 +91,7 @@ func (vNetworkHandler *AzureVNetworkHandler) CreateVNetwork(vNetworkReqInfo irs.
 		}
 		subnetArr = append(subnetArr, subnetInfo)
 	}
-	
+
 	// Check vNetwork Exists
 	vNetwork, err := vNetworkHandler.Client.Get(vNetworkHandler.Ctx, vNicIdArr[0], vNicIdArr[1], "")
 	if vNetwork.ID != nil {
@@ -92,7 +99,7 @@ func (vNetworkHandler *AzureVNetworkHandler) CreateVNetwork(vNetworkReqInfo irs.
 		createErr := errors.New(errMsg)
 		return irs.VNetworkInfo{}, createErr
 	}
-	
+
 	createOpts := network.VirtualNetwork{
 		Name: &reqInfo.Name,
 		VirtualNetworkPropertiesFormat: &network.VirtualNetworkPropertiesFormat{
